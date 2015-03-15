@@ -1,22 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.TeamFoundation.Build.Client;
 using Microsoft.TeamFoundation.Client;
-using System.Configuration;
-using Microsoft.TeamFoundation.Framework.Client;
 
 namespace GetTFSBuildStatus
 {
     class Program
     {
         /// <summary>
-        /// 
+        /// Displays status of latest build, 
+        /// and if the build is queued or in progress, will display status of queued builld. 
         /// </summary>
-        /// <param name="args"></param>
+        /// <param name="args">[Team Project Collection Url, Project Name, Build def name]</param>
         static void Main(string[] args)
         {
             if (args.Length < 3)
@@ -38,16 +33,15 @@ namespace GetTFSBuildStatus
             try
             {
                 var collectionUriArg = args[0];
-                var collectionUri = new Uri(collectionUriArg);
                 var projectName = args[1];
                 var buildDefName = args[2];
 
+                var collectionUri = new Uri(collectionUriArg);
                 var tfsServer = new TfsTeamProjectCollection(collectionUri);
                 var buildserver = (IBuildServer)tfsServer.GetService(typeof(IBuildServer));
 
                 Console.WriteLine("\nQuerying build server for build: " + buildDefName);
                 var def = buildserver.QueryBuildDefinitions(projectName).SingleOrDefault(d => d.Name.Equals(buildDefName, StringComparison.OrdinalIgnoreCase));
-
                 var spec = buildserver.CreateBuildQueueSpec(projectName, buildDefName);
 
                 if (def == null) return;
